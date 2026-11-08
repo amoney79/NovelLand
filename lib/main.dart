@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_container.dart';
 import 'models/user_profile.dart';
 import 'models/novel.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+      url: 'https://paoqyeaslvjrowvirmqn.supabase.co',
+      publishableKey: 'sb_publishable_yUMXJ4XiauOZOpa-biiHcQ_eyQSNjGm'
+  );
+
   runApp(const StoryLandApp());
 }
 

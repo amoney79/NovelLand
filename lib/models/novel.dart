@@ -5,6 +5,20 @@ class StoryChoice {
   final int nextNodeId;
 
   StoryChoice({required this.text, required this.nextNodeId});
+
+  factory StoryChoice.fromMap(Map<String, dynamic> map) {
+    return StoryChoice(
+      text: map['text'] ?? '',
+      nextNodeId: map['next_node_id'] ?? map['nextNodeId'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'text': text,
+      'next_node_id': nextNodeId,
+    };
+  }
 }
 
 class StoryNode {
@@ -19,6 +33,29 @@ class StoryNode {
     required this.content,
     required this.choices,
   });
+
+  factory StoryNode.fromMap(Map<String, dynamic> map) {
+    var rawChoices = map['choices'] as List<dynamic>? ?? [];
+    List<StoryChoice> parsedChoices = rawChoices
+        .map((c) => StoryChoice.fromMap(Map<String, dynamic>.from(c)))
+        .toList();
+
+    return StoryNode(
+      id: map['id'] ?? 0,
+      title: map['title'] ?? '',
+      content: map['content'] ?? '',
+      choices: parsedChoices,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'content': content,
+      'choices': choices.map((c) => c.toMap()).toList(),
+    };
+  }
 }
 
 class Chapter {
@@ -27,6 +64,22 @@ class Chapter {
   final String content;
 
   Chapter({required this.number, required this.title, required this.content});
+
+  factory Chapter.fromMap(Map<String, dynamic> map) {
+    return Chapter(
+      number: map['number'] ?? 1,
+      title: map['title'] ?? '',
+      content: map['content'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'number': number,
+      'title': title,
+      'content': content,
+    };
+  }
 }
 
 class Novel {
@@ -55,6 +108,47 @@ class Novel {
     this.isBookmarked = false,
     this.readingStatus = 'unread',
   });
+
+  factory Novel.fromMap(Map<String, dynamic> map) {
+    var rawChapters = map['chapters'] as List<dynamic>? ?? [];
+    List<Chapter> parsedChapters = rawChapters
+        .map((ch) => Chapter.fromMap(Map<String, dynamic>.from(ch)))
+        .toList();
+
+    var rawNodes = map['nodes'] as List<dynamic>? ?? [];
+    List<StoryNode> parsedNodes = rawNodes
+        .map((n) => StoryNode.fromMap(Map<String, dynamic>.from(n)))
+        .toList();
+
+    return Novel(
+      id: map['id']?.toString() ?? '',
+      title: map['title'] ?? '',
+      author: map['author'] ?? 'Unknown Author',
+      genre: map['genre'] ?? 'Fiction',
+      imageUrl: map['image_url'] ?? map['imageUrl'] ?? 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500',
+      synopsis: map['synopsis'] ?? '',
+      views: map['views']?.toString() ?? '0',
+      chapters: parsedChapters,
+      nodes: parsedNodes,
+      isBookmarked: map['is_bookmarked'] ?? map['isBookmarked'] ?? false,
+      readingStatus: map['reading_status'] ?? map['readingStatus'] ?? 'unread',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'author': author,
+      'genre': genre,
+      'image_url': imageUrl,
+      'synopsis': synopsis,
+      'views': views,
+      'chapters': chapters.map((c) => c.toMap()).toList(),
+      'nodes': nodes.map((n) => n.toMap()).toList(),
+      'is_bookmarked': isBookmarked,
+      'reading_status': readingStatus,
+    };
+  }
 }
 
 typedef Story = Novel;
@@ -132,7 +226,7 @@ class NovelManager extends ChangeNotifier {
       isBookmarked: false,
       readingStatus: 'unread',
       chapters: [
-        Chapter(number: 1, title: 'Chapter 1: The Scorned Heir', content: 'They threw the divorce papers across the polished floor without a second thought, completely unaware of who had just stepped out of the luxury limousine outside...'),
+        Chapter(number: 1, title: 'Chapter 1: The Scorned Heir', content: 'They threw the divorce papers across the polished floor without a second thought...'),
       ],
     ),
     Novel(
@@ -155,19 +249,34 @@ class NovelManager extends ChangeNotifier {
   List<Novel> get stories => _novels;
   List<Novel> get bookmarkedNovels => _novels.where((n) => n.isBookmarked).toList();
 
-  void toggleBookmark(String id) {
-    final novel = _novels.firstWhere((n) => n.id == id);
-    novel.isBookmarked = !novel.isBookmarked;
-    if (novel.isBookmarked && novel.readingStatus == 'unread') {
-      novel.readingStatus = 'reading';
+  void setNovels(List<Novel> fetchedNovels) {
+    if (fetchedNovels.isNotEmpty) {
+      for (var fetched in fetchedNovels) {
+        if (!_novels.any((existing) => existing.id == fetched.id)) {
+          _novels.insert(0, fetched);
+        }
+      }
+      notifyListeners();
     }
-    notifyListeners();
+  }
+
+  void toggleBookmark(String id) {
+    final novelIndex = _novels.indexWhere((n) => n.id == id);
+    if (novelIndex != -1) {
+      _novels[novelIndex].isBookmarked = !_novels[novelIndex].isBookmarked;
+      if (_novels[novelIndex].isBookmarked && _novels[novelIndex].readingStatus == 'unread') {
+        _novels[novelIndex].readingStatus = 'reading';
+      }
+      notifyListeners();
+    }
   }
 
   void updateStatus(String id, String status) {
-    final novel = _novels.firstWhere((n) => n.id == id);
-    novel.readingStatus = status;
-    notifyListeners();
+    final novelIndex = _novels.indexWhere((n) => n.id == id);
+    if (novelIndex != -1) {
+      _novels[novelIndex].readingStatus = status;
+      notifyListeners();
+    }
   }
 
   void addNovel(Novel novel) {
