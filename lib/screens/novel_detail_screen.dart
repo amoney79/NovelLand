@@ -23,7 +23,7 @@ class NovelDetailScreen extends StatelessWidget {
           if (isDev)
             IconButton(
               icon: const Icon(Icons.edit_note_rounded, color: Color(0xFFEC4899)),
-              tooltip: 'Edit Novel (Dev)',
+              tooltip: 'Edit Novel',
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AdminStoryCreatorScreen()),
@@ -121,11 +121,7 @@ class NovelDetailScreen extends StatelessWidget {
                       ),
                       onPressed: () {
                         novelManager.toggleBookmark(novel.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(novel.isBookmarked ? '🎉 Added to your Library!' : 'Removed from Library'),
-                          ),
-                        );
+
                       },
                       icon: Icon(
                         novel.isBookmarked ? Icons.bookmark : Icons.bookmark_add_outlined,
@@ -163,7 +159,7 @@ class NovelDetailScreen extends StatelessWidget {
                             context: context,
                             builder: (ctx) => AlertDialog(
                               title: const Text('Delete Novel?'),
-                              content: Text('Are you sure you want to delete "${novel.title}" from Supabase?'),
+                              content: Text('Are you sure you want to delete "${novel.title}"'),
                               actions: [
                                 TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
                                 TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
@@ -175,7 +171,7 @@ class NovelDetailScreen extends StatelessWidget {
                             await SupabaseService.deleteNovel(novel.id);
                             novelManager.deleteNovel(novel.id);
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🗑️ Novel deleted from Supabase')));
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Novel deleted')));
                               Navigator.pop(context);
                             }
                           }
