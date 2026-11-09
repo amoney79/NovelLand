@@ -80,6 +80,16 @@ class Chapter {
       'content': content,
     };
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Chapter &&
+          runtimeType == other.runtimeType &&
+          number == other.number;
+
+  @override
+  int get hashCode => number.hashCode;
 }
 
 class Novel {
@@ -90,7 +100,7 @@ class Novel {
   final String imageUrl;
   final String synopsis;
   final String views;
-  final List<Chapter> chapters;
+  List<Chapter> chapters;
   final List<StoryNode> nodes;
   bool isBookmarked;
   String readingStatus; // 'unread', 'reading', 'finished'
@@ -161,6 +171,16 @@ class Novel {
       'reading_status': readingStatus,
     };
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Novel &&
+          runtimeType == other.runtimeType &&
+          (id == other.id || title.trim().toLowerCase() == other.title.trim().toLowerCase());
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 typedef Story = Novel;
@@ -305,6 +325,27 @@ class NovelManager extends ChangeNotifier {
     final index = _novels.indexWhere((n) => n.id == updatedNovel.id);
     if (index != -1) {
       _novels[index] = updatedNovel;
+      notifyListeners();
+    }
+  }
+
+  void addChapterToNovel(String novelId, Chapter chapter) {
+    final index = _novels.indexWhere((n) => n.id == novelId);
+    if (index != -1) {
+      _novels[index].chapters.add(chapter);
+      notifyListeners();
+    }
+  }
+
+  void updateChapterInNovel(String novelId, int chapterNumber, Chapter updatedChapter) {
+    final index = _novels.indexWhere((n) => n.id == novelId);
+    if (index != -1) {
+      final chIndex = _novels[index].chapters.indexWhere((c) => c.number == chapterNumber);
+      if (chIndex != -1) {
+        _novels[index].chapters[chIndex] = updatedChapter;
+      } else {
+        _novels[index].chapters.add(updatedChapter);
+      }
       notifyListeners();
     }
   }

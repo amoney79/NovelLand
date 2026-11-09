@@ -20,7 +20,7 @@ class SupabaseService {
     required String synopsis,
     File? imageFile,
     File? docFile,
-    List<Chapter>? chapters, // Added chapters parameter here!
+    List<Chapter>? chapters,
   }) async {
     final client = _client;
     if (client == null) return false;
@@ -60,7 +60,6 @@ class SupabaseService {
         }
       }
 
-      // Map chapters to JSON maps, falling back to synopsis if empty
       final chapterList = chapters != null && chapters.isNotEmpty
           ? chapters.map((c) => c.toMap()).toList()
           : [
@@ -78,12 +77,13 @@ class SupabaseService {
         'image_url': imageUrl,
         'synopsis': synopsis,
         'views': '0',
-        'chapters': chapterList, // Now correctly includes your typed chapter content!
+        'chapters': chapterList,
       };
 
       if (docUrl != null) insertData['doc_url'] = docUrl;
 
       await client.from('novels').insert(insertData);
+      debugPrint('Successfully inserted new novel: $title');
       return true;
     } catch (e) {
       debugPrint('Supabase uploadNovel Error: $e');
@@ -91,14 +91,21 @@ class SupabaseService {
     }
   }
 
-  // READ: Fetch all novels
+  // READ: Fetch all novels and ensure ID is handled safely as a string
   static Future<List<Novel>> fetchNovels() async {
     final client = _client;
     if (client == null) return [];
     try {
       final dynamic response = await client.from('novels').select().order('created_at', ascending: false);
       if (response is List) {
-        return response.map((json) => Novel.fromMap(Map<String, dynamic>.from(json as Map))).toList();
+        return response.map((json) {
+          final map = Map<String, dynamic>.from(json as Map);
+          // Ensure the database 'id' (whether int, string, or UUID) is safely converted to String
+          if (map['id'] != null) {
+            map['id'] = map['id'].toString();
+          }
+          return Novel.fromMap(map);
+        }).toList();
       }
       return [];
     } catch (e) {
@@ -107,7 +114,7 @@ class SupabaseService {
     }
   }
 
-  // UPDATE: Edit novel in Supabase PostgreSQL
+  // UPDATE: Edit novel in Supabase PostgreSQL by matching ID
   static Future<bool> updateNovel({
     required String id,
     required String title,
@@ -144,7 +151,11 @@ class SupabaseService {
         updateData['chapters'] = chapters.map((c) => c.toMap()).toList();
       }
 
-      await client.from('novels').update(updateData).eq('id', id);
+      // Try matching ID as string first. If your DB column is an integer, you can also parse it: int.tryParse(id) ?? id
+      final dynamic parsedId = int.tryParse(id) ?? id;
+
+      await client.from('novels').update(updateData).eq('id', parsedId);
+      debugPrint('Successfully updated novel with ID: $id in Supabase.');
       return true;
     } catch (e) {
       debugPrint('Supabase updateNovel Error: $e');
@@ -157,7 +168,8 @@ class SupabaseService {
     final client = _client;
     if (client == null) return false;
     try {
-      await client.from('novels').delete().eq('id', id);
+      final dynamic parsedId = int.tryParse(id) ?? id;
+      await client.from('novels').delete().eq('id', parsedId);
       return true;
     } catch (e) {
       debugPrint('Supabase deleteNovel Error: $e');

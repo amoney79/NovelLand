@@ -23,10 +23,12 @@ class NovelDetailScreen extends StatelessWidget {
           if (isDev)
             IconButton(
               icon: const Icon(Icons.edit_note_rounded, color: Color(0xFFEC4899)),
-              tooltip: 'Edit Novel',
+              tooltip: 'Edit Novel / Add Chapter',
               onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const AdminStoryCreatorScreen()),
+                MaterialPageRoute(
+                  builder: (_) => AdminStoryCreatorScreen(initialNovel: novel),
+                ),
               ),
             ),
         ],
@@ -82,7 +84,7 @@ class NovelDetailScreen extends StatelessWidget {
                   Chip(
                     avatar: const Icon(Icons.remove_red_eye, size: 16, color: Colors.amber),
                     label: Text('${novel.views} Views'),
-                    backgroundColor: const Color(0xFF1E293B),
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                   ),
                 ],
               ),
@@ -121,7 +123,6 @@ class NovelDetailScreen extends StatelessWidget {
                       ),
                       onPressed: () {
                         novelManager.toggleBookmark(novel.id);
-
                       },
                       icon: Icon(
                         novel.isBookmarked ? Icons.bookmark : Icons.bookmark_add_outlined,
@@ -139,11 +140,11 @@ class NovelDetailScreen extends StatelessWidget {
                 ],
               ),
 
-              // Developer Actions: Edit & Delete
+              // Developer Operations Bar
               if (isDev) ...[
                 const SizedBox(height: 16),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -151,15 +152,27 @@ class NovelDetailScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      const Text('Developer Operations:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
+                      const Text('Developer:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
                       const Spacer(),
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AdminStoryCreatorScreen(initialNovel: novel),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.add, color: Color(0xFF6366F1), size: 18),
+                        label: const Text('Add Chapter', style: TextStyle(color: Color(0xFF6366F1), fontWeight: FontWeight.bold)),
+                      ),
                       TextButton.icon(
                         onPressed: () async {
                           final confirm = await showDialog<bool>(
                             context: context,
                             builder: (ctx) => AlertDialog(
                               title: const Text('Delete Novel?'),
-                              content: Text('Are you sure you want to delete "${novel.title}"'),
+                              content: Text('Are you sure you want to delete "${novel.title}"?'),
                               actions: [
                                 TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
                                 TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
@@ -176,7 +189,7 @@ class NovelDetailScreen extends StatelessWidget {
                             }
                           }
                         },
-                        icon: const Icon(Icons.delete_forever, color: Colors.redAccent, size: 20),
+                        icon: const Icon(Icons.delete_forever, color: Colors.redAccent, size: 18),
                         label: const Text('Delete', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
                       ),
                     ],
@@ -197,12 +210,34 @@ class NovelDetailScreen extends StatelessWidget {
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
+
               ...novel.chapters.map((chapter) => Card(
                 color: Theme.of(context).colorScheme.surface,
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   title: Text(chapter.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  trailing: const Icon(Icons.chevron_right, size: 20),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isDev)
+                        IconButton(
+                          icon: const Icon(Icons.edit, size: 18, color: Color(0xFF6366F1)),
+                          tooltip: 'Edit Chapter Text',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AdminStoryCreatorScreen(
+                                  initialNovel: novel,
+                                  initialChapterToEdit: chapter,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      const Icon(Icons.chevron_right, size: 20),
+                    ],
+                  ),
                   onTap: () {
                     Navigator.push(
                       context,
