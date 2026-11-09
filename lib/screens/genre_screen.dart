@@ -24,12 +24,12 @@ class _GenreScreenState extends State<GenreScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Explore Genres 🗂️', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Explore Genres', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           if (isDev)
             IconButton(
               icon: const Icon(Icons.admin_panel_settings_rounded, color: Color(0xFFEC4899)),
-              tooltip: 'Creator Studio (Dev)',
+              tooltip: 'Creator Studio',
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AdminStoryCreatorScreen()),
@@ -105,9 +105,7 @@ class _GenreScreenState extends State<GenreScreen> {
                       ),
                       onPressed: () {
                         novelManager.toggleBookmark(novel.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(novel.isBookmarked ? 'Added to Library' : 'Removed from Library')),
-                        );
+
                       },
                     ),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => NovelDetailScreen(novel: novel))),
