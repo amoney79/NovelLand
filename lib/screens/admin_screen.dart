@@ -137,7 +137,7 @@ class _AdminStoryCreatorScreenState extends State<AdminStoryCreatorScreen> {
                   decoration: BoxDecoration(
                     color: Colors.indigo.shade50,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.3)),
+                    border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

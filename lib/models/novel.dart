@@ -120,13 +120,25 @@ class Novel {
         .map((n) => StoryNode.fromMap(Map<String, dynamic>.from(n)))
         .toList();
 
+    String coverImage = map['image_url'] ??
+        map['imageUrl'] ??
+        map['cover_url'] ??
+        map['coverUrl'] ??
+        map['cover'] ??
+        map['image'] ??
+        'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500';
+
+    if (coverImage.isEmpty) {
+      coverImage = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500';
+    }
+
     return Novel(
       id: map['id']?.toString() ?? '',
-      title: map['title'] ?? '',
+      title: map['title'] ?? 'Untitled Novel',
       author: map['author'] ?? 'Unknown Author',
       genre: map['genre'] ?? 'Fiction',
-      imageUrl: map['image_url'] ?? map['imageUrl'] ?? 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500',
-      synopsis: map['synopsis'] ?? '',
+      imageUrl: coverImage,
+      synopsis: map['synopsis'] ?? map['description'] ?? '',
       views: map['views']?.toString() ?? '0',
       chapters: parsedChapters,
       nodes: parsedNodes,
@@ -252,7 +264,12 @@ class NovelManager extends ChangeNotifier {
   void setNovels(List<Novel> fetchedNovels) {
     if (fetchedNovels.isNotEmpty) {
       for (var fetched in fetchedNovels) {
-        if (!_novels.any((existing) => existing.id == fetched.id)) {
+        final existingIndex = _novels.indexWhere(
+          (n) => n.id == fetched.id || n.title.trim().toLowerCase() == fetched.title.trim().toLowerCase(),
+        );
+        if (existingIndex != -1) {
+          _novels[existingIndex] = fetched;
+        } else {
           _novels.insert(0, fetched);
         }
       }
