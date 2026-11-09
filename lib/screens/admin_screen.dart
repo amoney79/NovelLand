@@ -104,8 +104,8 @@ class _AdminStoryCreatorScreenState extends State<AdminStoryCreatorScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isAddingNewChapterOnly
-                ? ' Chapter $_chapterNumber published to Supabase!'
-                : 'Novel published to Supabase!'),
+                ? ' Chapter $_chapterNumber published!'
+                : 'Novel published!'),
           ),
         );
       } else {
@@ -135,17 +135,13 @@ class _AdminStoryCreatorScreenState extends State<AdminStoryCreatorScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.indigo.shade50,
+                    color: Colors.indigo,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.3)),
+                    border: Border.all(color: const Color(0xFF7E7EE1).withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Creation Mode:',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF6366F1)),
-                      ),
                       DropdownButton<bool>(
                         value: _isAddingNewChapterOnly,
                         underline: const SizedBox(),

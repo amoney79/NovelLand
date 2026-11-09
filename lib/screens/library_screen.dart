@@ -78,7 +78,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   const Text('No stories in your library yet.', style: TextStyle(color: Colors.grey, fontSize: 16)),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(
+                        0xFF9B9CDE)),
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const ExploreScreen()));
                     },
@@ -118,7 +119,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       icon: const Icon(Icons.bookmark_remove, color: Colors.redAccent),
                       onPressed: () {
                         novelManager.toggleBookmark(novel.id);
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Removed from Library')));
                       },
                     ),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => NovelDetailScreen(novel: novel))),
