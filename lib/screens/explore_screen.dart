@@ -67,12 +67,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('NovelUP Explore 📚', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('StoryLand Explore', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           if (isDev)
             IconButton(
               icon: const Icon(Icons.admin_panel_settings_rounded, color: Color(0xFFEC4899)),
-              tooltip: 'Creator Studio (Dev)',
+              tooltip: 'Creator Studio',
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AdminStoryCreatorScreen()),
