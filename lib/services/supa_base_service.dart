@@ -20,7 +20,7 @@ class SupabaseService {
     required String synopsis,
     File? imageFile,
     File? docFile,
-    List<Chapter>? chapters,
+    List<Chapter>? chapters, // Added chapters parameter here!
   }) async {
     final client = _client;
     if (client == null) return false;
@@ -60,6 +60,7 @@ class SupabaseService {
         }
       }
 
+      // Map chapters to JSON maps, falling back to synopsis if empty
       final chapterList = chapters != null && chapters.isNotEmpty
           ? chapters.map((c) => c.toMap()).toList()
           : [
@@ -77,7 +78,7 @@ class SupabaseService {
         'image_url': imageUrl,
         'synopsis': synopsis,
         'views': '0',
-        'chapters': chapterList,
+        'chapters': chapterList, // Now correctly includes your typed chapter content!
       };
 
       if (docUrl != null) insertData['doc_url'] = docUrl;
@@ -101,7 +102,7 @@ class SupabaseService {
       }
       return [];
     } catch (e) {
-      debugPrint('❌ Supabase fetchNovels Error: $e');
+      debugPrint('Supabase fetchNovels Error: $e');
       return [];
     }
   }

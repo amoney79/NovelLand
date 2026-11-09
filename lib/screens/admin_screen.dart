@@ -84,7 +84,7 @@ class _AdminStoryCreatorScreenState extends State<AdminStoryCreatorScreen> {
         author: _authorController.text,
         genre: _genreController.text,
         synopsis: synopsisText,
-        views: '1.0K',
+        views: '0.0',
         imageUrl: _selectedImageFile != null
             ? 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500'
             : 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=500',
