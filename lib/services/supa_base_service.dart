@@ -15,12 +15,25 @@ class SupabaseService {
   // Fetch all novels from PostgreSQL database
   static Future<List<Novel>> fetchNovels() async {
     final client = _client;
-    if (client == null) return [];
+    if (client == null) {
+      debugPrint('⚠️ Supabase client is null. Ensure Supabase.initialize is completed.');
+      return [];
+    }
     try {
-      final List<dynamic> response = await client.from('novels').select().order('created_at', ascending: false);
-      return response.map((json) => Novel.fromMap(Map<String, dynamic>.from(json))).toList();
-    } catch (e) {
-      debugPrint('Error fetching novels from Supabase: $e');
+      final dynamic response = await client.from('novels').select().order('created_at', ascending: false);
+      debugPrint('📦 Supabase fetchNovels Response: $response');
+      if (response is List) {
+        final novels = response.map((json) {
+          final map = Map<String, dynamic>.from(json as Map);
+          return Novel.fromMap(map);
+        }).toList();
+        debugPrint('✅ Successfully parsed ${novels.length} novels from Supabase.');
+        return novels;
+      }
+      return [];
+    } catch (e, stack) {
+      debugPrint('❌ Supabase fetchNovels Error: $e');
+      debugPrint('Stacktrace: $stack');
       return [];
     }
   }
@@ -35,7 +48,10 @@ class SupabaseService {
     File? docFile,
   }) async {
     final client = _client;
-    if (client == null) return false;
+    if (client == null) {
+      debugPrint('⚠️ Supabase client is null during upload.');
+      return false;
+    }
     try {
       String imageUrl = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500';
       String? docUrl;
@@ -44,25 +60,42 @@ class SupabaseService {
       if (imageFile != null) {
         final imageExtension = imageFile.path.split('.').last;
         final imageFileName = '${DateTime.now().millisecondsSinceEpoch}_cover.$imageExtension';
-        await client.storage.from('covers').upload(imageFileName, imageFile);
-        imageUrl = client.storage.from('covers').getPublicUrl(imageFileName);
+        try {
+          await client.storage.from('covers').upload(
+            imageFileName,
+            imageFile,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
+          );
+          imageUrl = client.storage.from('covers').getPublicUrl(imageFileName);
+          debugPrint('📸 Cover Image uploaded to Supabase Storage: $imageUrl');
+        } catch (storageError) {
+          debugPrint('⚠️ Cover Image storage upload warning: $storageError');
+        }
       }
 
       // 2. Upload Manuscript Document to Supabase Storage Bucket ('manuscripts')
       if (docFile != null) {
         final docExtension = docFile.path.split('.').last;
         final docFileName = '${DateTime.now().millisecondsSinceEpoch}_doc.$docExtension';
-        await client.storage.from('manuscripts').upload(docFileName, docFile);
-        docUrl = client.storage.from('manuscripts').getPublicUrl(docFileName);
+        try {
+          await client.storage.from('manuscripts').upload(
+            docFileName,
+            docFile,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
+          );
+          docUrl = client.storage.from('manuscripts').getPublicUrl(docFileName);
+          debugPrint('📄 Manuscript uploaded to Supabase Storage: $docUrl');
+        } catch (storageError) {
+          debugPrint('⚠️ Manuscript storage upload warning: $storageError');
+        }
       }
 
       // 3. Insert Novel Record into PostgreSQL Table ('novels')
-      await client.from('novels').insert({
+      final Map<String, dynamic> insertData = {
         'title': title,
         'author': author,
         'genre': genre,
         'image_url': imageUrl,
-        'doc_url': docUrl,
         'synopsis': synopsis,
         'views': '0',
         'chapters': [
@@ -72,12 +105,19 @@ class SupabaseService {
             'content': synopsis,
           }
         ],
-        'nodes': [], // Empty for linear novels
-      });
+      };
+
+      if (docUrl != null) {
+        insertData['doc_url'] = docUrl;
+      }
+
+      final response = await client.from('novels').insert(insertData).select();
+      debugPrint('✅ Inserted novel into Supabase PostgreSQL: $response');
 
       return true;
-    } catch (e) {
-      debugPrint('Error uploading novel to Supabase: $e');
+    } catch (e, stack) {
+      debugPrint('❌ Error uploading novel to Supabase: $e');
+      debugPrint('Stacktrace: $stack');
       return false;
     }
   }

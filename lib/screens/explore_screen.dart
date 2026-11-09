@@ -27,11 +27,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Future<void> _fetchNovels() async {
     try {
       final fetched = await SupabaseService.fetchNovels();
-      if (mounted && fetched.isNotEmpty) {
+      debugPrint('Successfully fetched ${fetched.length} novels from Supabase.');
+      if (mounted) {
         Provider.of<NovelManager>(context, listen: false).setNovels(fetched);
         _startTimer(fetched.length);
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('❌ FETCH NOVELS ERROR: $e');
+    }
   }
 
   void _startTimer(int count) {
@@ -164,7 +167,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                   ),
                   title: Text(novel.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('${novel.genre} • ${novel.views} views', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  subtitle: Text('${novel.genre}\n${novel.views} views', style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => NovelDetailScreen(novel: novel))),
                 ),
