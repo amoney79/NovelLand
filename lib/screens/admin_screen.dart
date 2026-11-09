@@ -104,13 +104,13 @@ class _AdminStoryCreatorScreenState extends State<AdminStoryCreatorScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isAddingNewChapterOnly
-                ? '🎉 Chapter $_chapterNumber published to Supabase!'
-                : '🎉 Linear novel published to Supabase!'),
+                ? ' Chapter $_chapterNumber published to Supabase!'
+                : 'Novel published to Supabase!'),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('🎉 Published locally!')),
+          const SnackBar(content: Text('Published locally!')),
         );
       }
       Navigator.pop(context);
@@ -121,7 +121,7 @@ class _AdminStoryCreatorScreenState extends State<AdminStoryCreatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isAddingNewChapterOnly ? 'Admin: Add Chapter 2+ 📖' : 'Admin: Create Linear Novel 📖'),
+        title: Text(_isAddingNewChapterOnly ? 'Admin: Add Chapter 2+' : 'Admin: Create Linear Novel'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -151,7 +151,7 @@ class _AdminStoryCreatorScreenState extends State<AdminStoryCreatorScreen> {
                         underline: const SizedBox(),
                         items: const [
                           DropdownMenuItem(value: false, child: Text('New Novel (Chapter 1)')),
-                          DropdownMenuItem(value: true, child: Text('Add Chapter (2+)')),
+                          DropdownMenuItem(value: true, child: Text('Add Chapter 2')),
                         ],
                         onChanged: (val) {
                           if (val != null) setState(() => _isAddingNewChapterOnly = val);
@@ -268,7 +268,7 @@ class _AdminStoryCreatorScreenState extends State<AdminStoryCreatorScreen> {
                     child: _isUploading
                         ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                         : Text(
-                      _isAddingNewChapterOnly ? 'Publish Chapter $_chapterNumber' : 'Publish Linear Novel',
+                      _isAddingNewChapterOnly ? 'Publish Chapter $_chapterNumber' : 'Publish Novel',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                   ),

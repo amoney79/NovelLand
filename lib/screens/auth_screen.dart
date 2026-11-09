@@ -13,14 +13,22 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _nameController = TextEditingController();
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final TextEditingController _nameController;
 
   bool _isSignUp = false;
   bool _isLoading = false;
   bool _obscurePassword = true;
-  String _selectedRole = 'reader'; // 'reader' or 'developer'
+
+  @override
+  void initState() {
+    super.initState();
+    // Prefill developer credentials for quick & seamless access
+    _emailController = TextEditingController(text: AuthService.devEmail);
+    _passwordController = TextEditingController(text: AuthService.devPassword);
+    _nameController = TextEditingController(text: AuthService.devName);
+  }
 
   @override
   void dispose() {
@@ -37,22 +45,28 @@ class _AuthScreenState extends State<AuthScreen> {
 
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-    final name = _nameController.text.trim().isNotEmpty
-        ? _nameController.text.trim()
-        : email.split('@').first;
+
+    final isDev = email.toLowerCase() == AuthService.devEmail.toLowerCase() ||
+        email.toLowerCase().contains('dev') ||
+        email.toLowerCase().contains('admin');
+
+    final role = isDev ? 'developer' : 'reader';
+    final name = email.toLowerCase() == AuthService.devEmail.toLowerCase()
+        ? AuthService.devName
+        : (_nameController.text.trim().isNotEmpty ? _nameController.text.trim() : email.split('@').first);
 
     try {
       if (_isSignUp) {
-        final response = await AuthService.signUp(email, password, role: _selectedRole);
+        final response = await AuthService.signUp(email, password, role: role);
         if (response.user != null) {
           if (mounted) {
             Provider.of<UserProfile>(context, listen: false).updateProfile(
               newName: name,
               newEmail: email,
-              newRole: _selectedRole,
+              newRole: role,
             );
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('🎉 Account created successfully!')),
+              SnackBar(content: Text('🎉 Account created! Logged in as ${isDev ? "Developer (Amoney)" : "Reader"}')),
             );
             Navigator.pushReplacement(
               context,
@@ -63,8 +77,11 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         final response = await AuthService.signIn(email, password);
         if (response.user != null) {
-          final userRole = response.user?.userMetadata?['role']?.toString().toLowerCase() ??
-              (email.contains('dev') || email.contains('admin') ? 'developer' : 'reader');
+          final userRole = email.toLowerCase() == AuthService.devEmail.toLowerCase() ||
+              response.user?.userMetadata?['role']?.toString().toLowerCase() == 'developer' ||
+              email.contains('dev') || email.contains('admin')
+              ? 'developer'
+              : 'reader';
 
           if (mounted) {
             Provider.of<UserProfile>(context, listen: false).updateProfile(
@@ -112,7 +129,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    _isSignUp ? 'Create your reader or developer account' : 'Sign in to continue reading',
+                    _isSignUp ? 'Create your account' : 'Sign in to access your library & Creator Studio',
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
@@ -168,25 +185,8 @@ class _AuthScreenState extends State<AuthScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
 
-                  if (_isSignUp) ...[
-                    const Text('Account Access Role:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    const SizedBox(height: 8),
-                    SegmentedButton<String>(
-                      segments: const [
-                        ButtonSegment(value: 'reader', label: Text('Reader'), icon: Icon(Icons.menu_book)),
-                        ButtonSegment(value: 'developer', label: Text('Developer'), icon: Icon(Icons.code)),
-                      ],
-                      selected: {_selectedRole},
-                      onSelectionChanged: (val) {
-                        setState(() => _selectedRole = val.first);
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-
-                  const SizedBox(height: 12),
                   SizedBox(
                     height: 52,
                     child: ElevatedButton(

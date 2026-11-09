@@ -1,6 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
+  static const String devEmail = 'mackenziejoseph396@gmail.com';
+  static const String devName = 'Amoney';
+  static const String devPassword = 'Storyland100@';
+
   static SupabaseClient? get _client {
     try {
       return Supabase.instance.client;
@@ -24,9 +28,10 @@ class AuthService {
     if (user == null) return false;
 
     final role = user.userMetadata?['role']?.toString().toLowerCase() ?? '';
-    final email = user.email?.toLowerCase() ?? '';
+    final email = user.email?.toLowerCase().trim() ?? '';
 
-    return role == 'developer' ||
+    return email == devEmail.toLowerCase() ||
+        role == 'developer' ||
         role == 'admin' ||
         email.endsWith('@dev.com') ||
         email.endsWith('@admin.com') ||
@@ -34,14 +39,23 @@ class AuthService {
         email.contains('admin');
   }
 
-  // Sign Up with Email, Password and Role
+  // Sign Up with Email & Password
   static Future<AuthResponse> signUp(String email, String password, {String role = 'reader'}) async {
     final client = _client;
     if (client == null) throw Exception('Supabase client not initialized.');
+    final userRole = (email.toLowerCase().trim() == devEmail.toLowerCase() ||
+        email.toLowerCase().contains('dev') ||
+        email.toLowerCase().contains('admin'))
+        ? 'developer'
+        : role;
+
     return await client.auth.signUp(
       email: email,
       password: password,
-      data: {'role': role},
+      data: {
+        'role': userRole,
+        'name': email.toLowerCase().trim() == devEmail.toLowerCase() ? devName : email.split('@').first,
+      },
     );
   }
 
