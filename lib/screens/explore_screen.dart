@@ -87,12 +87,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
           children: <Widget>[
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text('Featured Auto-Scroll Showcase', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text('Featured', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
             SizedBox(
               height: 180,
               child: novels.isEmpty
-                  ? const Center(child: Text('No featured novels available', style: TextStyle(color: Colors.grey)))
+                  ? const Center(child: Text('No novels available', style: TextStyle(color: Colors.grey)))
                   : PageView.builder(
                 controller: _pageController,
                 itemCount: novels.length > 3 ? 3 : novels.length,
@@ -175,9 +175,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                     onPressed: () {
                       novelManager.toggleBookmark(novel.id);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(novel.isBookmarked ? 'Added to Library' : 'Removed from Library')),
-                      );
+
                     },
                   ),
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => NovelDetailScreen(novel: novel))),
