@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 import 'explore_screen.dart';
 import 'genre_screen.dart';
 import 'library_screen.dart';
 import 'profile_screen.dart';
+import 'admin_screen.dart';
 
 class MainContainer extends StatefulWidget {
   const MainContainer({super.key});
@@ -23,15 +25,27 @@ class _MainContainerState extends State<MainContainer> {
 
   @override
   Widget build(BuildContext context) {
+    final isDev = AuthService.isDeveloper;
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
       ),
+      floatingActionButton: isDev
+          ? FloatingActionButton.extended(
+        backgroundColor: const Color(0xFFEC4899),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminStoryCreatorScreen()),
+        ),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Creator Studio', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      )
+          : null,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
-        backgroundColor: const Color(0xFF1E293B),
         indicatorColor: const Color(0xFF6366F1).withValues(alpha: 0.3),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Me'),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/novel.dart';
+import '../services/auth_service.dart';
 import 'novel_detail_screen.dart';
 import 'explore_screen.dart';
 import 'admin_screen.dart';
@@ -18,9 +19,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   Widget build(BuildContext context) {
     final novelManager = Provider.of<NovelManager>(context);
+    final isDev = AuthService.isDeveloper;
     final bookmarked = novelManager.bookmarkedNovels;
 
-    // Apply status filter
     List<Novel> displayedNovels = bookmarked;
     if (currentFilter == 'Reading') {
       displayedNovels = bookmarked.where((n) => n.readingStatus == 'reading').toList();
@@ -34,19 +35,20 @@ class _LibraryScreenState extends State<LibraryScreen> {
       appBar: AppBar(
         title: const Text('My Library 📖', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.admin_panel_settings_rounded, color: Color(0xFFEC4899)),
-            tooltip: 'Creator Studio',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AdminStoryCreatorScreen()),
+          if (isDev)
+            IconButton(
+              icon: const Icon(Icons.admin_panel_settings_rounded, color: Color(0xFFEC4899)),
+              tooltip: 'Creator Studio (Dev)',
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AdminStoryCreatorScreen()),
+              ),
             ),
-          ),
         ],
       ),
       body: Column(
         children: [
-          // Filter Buttons Bar
+          // Filter Chips
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -71,14 +73,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('No stories added to your library yet.', style: TextStyle(color: Colors.grey)),
+                  const Icon(Icons.bookmark_border, size: 60, color: Colors.grey),
+                  const SizedBox(height: 12),
+                  const Text('No stories in your library yet.', style: TextStyle(color: Colors.grey, fontSize: 16)),
                   const SizedBox(height: 16),
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1)),
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const ExploreScreen()));
                     },
-                    child: const Text('Explore novels'),
+                    icon: const Icon(Icons.explore),
+                    label: const Text('Explore Novels'),
                   ),
                 ],
               ),
@@ -89,7 +94,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
               itemBuilder: (context, index) {
                 final novel = displayedNovels[index];
                 return Card(
-                  color: const Color(0xFF1E293B),
+                  color: Theme.of(context).colorScheme.surface,
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
                     leading: ClipRRect(
@@ -109,7 +114,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     ),
                     title: Text(novel.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text('Status: ${novel.readingStatus.toUpperCase()}', style: const TextStyle(color: Colors.amber, fontSize: 11)),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.bookmark_remove, color: Colors.redAccent),
+                      onPressed: () {
+                        novelManager.toggleBookmark(novel.id);
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Removed from Library')));
+                      },
+                    ),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => NovelDetailScreen(novel: novel))),
                   ),
                 );

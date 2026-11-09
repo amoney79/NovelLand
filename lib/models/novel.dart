@@ -301,6 +301,19 @@ class NovelManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateNovel(Novel updatedNovel) {
+    final index = _novels.indexWhere((n) => n.id == updatedNovel.id);
+    if (index != -1) {
+      _novels[index] = updatedNovel;
+      notifyListeners();
+    }
+  }
+
+  void deleteNovel(String id) {
+    _novels.removeWhere((n) => n.id == id);
+    notifyListeners();
+  }
+
   void addStory(Novel story) => addNovel(story);
 }
 

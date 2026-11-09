@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/novel.dart';
 import '../services/supa_base_service.dart';
+import '../services/auth_service.dart';
 import 'novel_detail_screen.dart';
 import 'admin_screen.dart';
 
@@ -27,14 +28,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Future<void> _fetchNovels() async {
     try {
       final fetched = await SupabaseService.fetchNovels();
-      debugPrint('Successfully fetched ${fetched.length} novels from Supabase.');
-      if (mounted) {
+      if (mounted && fetched.isNotEmpty) {
         Provider.of<NovelManager>(context, listen: false).setNovels(fetched);
         _startTimer(fetched.length);
       }
-    } catch (e) {
-      debugPrint('❌ FETCH NOVELS ERROR: $e');
-    }
+    } catch (_) {}
   }
 
   void _startTimer(int count) {
@@ -65,19 +63,21 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget build(BuildContext context) {
     final novelManager = Provider.of<NovelManager>(context);
     final novels = novelManager.novels;
+    final isDev = AuthService.isDeveloper;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('NovelUP Explore 📚', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.admin_panel_settings_rounded, color: Color(0xFFEC4899)),
-            tooltip: 'Creator Studio',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AdminStoryCreatorScreen()),
-            ).then((_) => _fetchNovels()),
-          ),
+          if (isDev)
+            IconButton(
+              icon: const Icon(Icons.admin_panel_settings_rounded, color: Color(0xFFEC4899)),
+              tooltip: 'Creator Studio (Dev)',
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AdminStoryCreatorScreen()),
+              ).then((_) => _fetchNovels()),
+            ),
         ],
       ),
       body: RefreshIndicator(
@@ -148,7 +148,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               )
             else
               ...novels.map((novel) => Card(
-                color: const Color(0xFF1E293B),
+                color: Theme.of(context).colorScheme.surface,
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 child: ListTile(
                   leading: ClipRRect(
@@ -167,8 +167,19 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                   ),
                   title: Text(novel.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('${novel.genre}\n${novel.views} views', style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  subtitle: Text('${novel.genre} • ${novel.views} views', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  trailing: IconButton(
+                    icon: Icon(
+                      novel.isBookmarked ? Icons.bookmark : Icons.bookmark_add_outlined,
+                      color: novel.isBookmarked ? Colors.amber : Colors.grey,
+                    ),
+                    onPressed: () {
+                      novelManager.toggleBookmark(novel.id);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(novel.isBookmarked ? 'Added to Library' : 'Removed from Library')),
+                      );
+                    },
+                  ),
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => NovelDetailScreen(novel: novel))),
                 ),
               )),

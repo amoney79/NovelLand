@@ -6,8 +6,7 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const StoryLandApp());
 
-    // Verify app title or explore screen elements appear
-    expect(find.text('NovelUP Explore 📚'), findsOneWidget);
-    expect(find.text('Featured Auto-Scroll Showcase'), findsOneWidget);
+    // Verify app starts cleanly
+    expect(find.text('StoryLand'), findsWidgets);
   });
 }

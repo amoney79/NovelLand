@@ -2,22 +2,21 @@ import 'package:flutter/foundation.dart';
 
 class UserProfile extends ChangeNotifier {
   String name;
-  int points;
-  int streak;
+  String email;
+  String role; // 'developer' or 'reader'
 
   UserProfile({
     required this.name,
-    required this.points,
-    required this.streak,
+    required this.email,
+    required this.role,
   });
 
-  int get coins => points;
-  int get readingStreak => streak;
+  bool get isDeveloper => role.toLowerCase() == 'developer' || role.toLowerCase() == 'admin';
 
-  void addPoints(int amount) {
-    points += amount;
+  void updateProfile({String? newName, String? newEmail, String? newRole}) {
+    if (newName != null) name = newName;
+    if (newEmail != null) email = newEmail;
+    if (newRole != null) role = newRole;
     notifyListeners();
   }
-
-  void addCoins(int amount) => addPoints(amount);
 }
