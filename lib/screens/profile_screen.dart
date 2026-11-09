@@ -15,7 +15,7 @@ class ProfileScreen extends StatelessWidget {
     final isDev = AuthService.isDeveloper || user.isDeveloper;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Me & Settings')),
+      appBar: AppBar(title: const Text('Settings')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16.0),
@@ -56,14 +56,6 @@ class ProfileScreen extends StatelessWidget {
                             color: isDev ? const Color(0xFFEC4899).withValues(alpha: 0.2) : Colors.indigo.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Text(
-                            isDev ? '🛠️ Developer / Creator' : '📖 Reader Account',
-                            style: TextStyle(
-                              color: isDev ? const Color(0xFFEC4899) : const Color(0xFF6366F1),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -73,13 +65,13 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            const Text('App & Reading Settings', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey)),
+            const Text('Settings', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey)),
             const SizedBox(height: 8),
 
             // Real Dark Mode Switch
             SwitchListTile(
-              title: const Text('Dark Reading Mode'),
-              subtitle: const Text('Switch between Light and Dark app themes'),
+              title: const Text('Dark Mode'),
+              subtitle: const Text('Light and Dark Modes'),
               value: settings.isDarkMode,
               onChanged: (val) => settings.toggleTheme(val),
               secondary: Icon(settings.isDarkMode ? Icons.dark_mode : Icons.light_mode),
