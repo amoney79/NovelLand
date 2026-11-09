@@ -121,7 +121,7 @@ class _AdminStoryCreatorScreenState extends State<AdminStoryCreatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isAddingNewChapterOnly ? 'Admin: Add Chapter 2+' : 'Admin: Create Linear Novel'),
+        title: Text(_isAddingNewChapterOnly ? 'Admin: Add Chapter 2' : 'Admin: Create Novel'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

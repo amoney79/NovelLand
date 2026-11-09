@@ -87,7 +87,7 @@ class ProfileScreen extends StatelessWidget {
 
             // Push Notifications Switch
             SwitchListTile(
-              title: const Text('Push Notifications'),
+              title: const Text('Notifications'),
               subtitle: const Text('Get notified when new chapters are published'),
               value: settings.pushNotificationsEnabled,
               onChanged: (val) => settings.togglePushNotifications(val),
