@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import 'library_screen.dart';
 import 'explore_screen.dart';
 import 'genre_screen.dart';
-import 'library_screen.dart';
 import 'profile_screen.dart';
 import 'admin_screen.dart';
 
@@ -14,13 +14,14 @@ class MainContainer extends StatefulWidget {
 }
 
 class _MainContainerState extends State<MainContainer> {
-  int _currentIndex = 1; // Default to Explore
+  int _currentIndex = 0;
 
+  // 0: Library, 1: Explore, 2: Genre, 3: Me (Profile)
   final List<Widget> _screens = [
-    const ProfileScreen(), // Me
+    const LibraryScreen(),
     const ExploreScreen(),
     const GenreScreen(),
-    const LibraryScreen(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -48,10 +49,10 @@ class _MainContainerState extends State<MainContainer> {
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
         indicatorColor: const Color(0xFF6366F1).withValues(alpha: 0.3),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Me'),
+          NavigationDestination(icon: Icon(Icons.book_outlined), selectedIcon: Icon(Icons.book), label: 'Library'),
           NavigationDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: 'Explore'),
           NavigationDestination(icon: Icon(Icons.grid_view_outlined), selectedIcon: Icon(Icons.grid_view), label: 'Genre'),
-          NavigationDestination(icon: Icon(Icons.book_outlined), selectedIcon: Icon(Icons.book), label: 'Library'),
+          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Me'),
         ],
       ),
     );
