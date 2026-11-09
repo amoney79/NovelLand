@@ -39,7 +39,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
     if (isInteractive) {
       final currentNode = novel.nodes.firstWhere(
-        (node) => node.id == currentNodeId,
+            (node) => node.id == currentNodeId,
         orElse: () => novel.nodes.first,
       );
 
@@ -195,46 +195,32 @@ class _ReaderScreenState extends State<ReaderScreen> {
                 ),
               ),
 
-              // Bottom Chapter Control Bar
+              // Bottom Chapter Control Bar (Only Next Chapter button remains)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 color: Theme.of(context).colorScheme.surface,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton.icon(
-                      onPressed: currentChapterIndex > 0
-                          ? () {
-                        setState(() => currentChapterIndex--);
-                        if (transitionMode == 'Horizontal Swipe' && _pageController.hasClients) {
-                          _pageController.animateToPage(currentChapterIndex, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                        }
-                      }
-                          : null,
-                      icon: const Icon(Icons.chevron_left),
-                      label: const Text('Previous'),
-                    ),
-                    ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: (currentChapterIndex >= chapters.length - 1) ? Colors.green : const Color(0xFF6366F1),
+                        backgroundColor: const Color(0xFF6366F1),
                       ),
-                      onPressed: () {
-                        if (currentChapterIndex >= chapters.length - 1) {
-                          Provider.of<NovelManager>(context, listen: false).updateStatus(novel.id, 'finished');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('🎉 Completed novel!')),
+                      onPressed: currentChapterIndex < chapters.length - 1
+                          ? () {
+                        setState(() => currentChapterIndex++);
+                        if (transitionMode == 'Horizontal Swipe' && _pageController.hasClients) {
+                          _pageController.animateToPage(
+                            currentChapterIndex,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
                           );
-                          Navigator.pop(context);
-                        } else {
-                          setState(() => currentChapterIndex++);
-                          if (transitionMode == 'Horizontal Swipe' && _pageController.hasClients) {
-                            _pageController.animateToPage(currentChapterIndex, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                          }
-                          Provider.of<NovelManager>(context, listen: false).updateStatus(novel.id, 'reading');
                         }
-                      },
-                      label: Text(currentChapterIndex >= chapters.length - 1 ? 'Finish' : 'Next Chapter'),
-                      icon: const Icon(Icons.chevron_right),
+                        Provider.of<NovelManager>(context, listen: false).updateStatus(novel.id, 'reading');
+                      }
+                          : null, // Disabled if already on the last chapter
+                      label: const Text('Next Chapter', style: TextStyle(color: Colors.white)),
+                      icon: const Icon(Icons.chevron_right, color: Colors.white),
                     ),
                   ],
                 ),
