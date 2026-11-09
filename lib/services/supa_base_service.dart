@@ -85,7 +85,7 @@ class SupabaseService {
       await client.from('novels').insert(insertData);
       return true;
     } catch (e) {
-      debugPrint('❌ Supabase uploadNovel Error: $e');
+      debugPrint('Supabase uploadNovel Error: $e');
       return false;
     }
   }
@@ -146,7 +146,7 @@ class SupabaseService {
       await client.from('novels').update(updateData).eq('id', id);
       return true;
     } catch (e) {
-      debugPrint('❌ Supabase updateNovel Error: $e');
+      debugPrint('Supabase updateNovel Error: $e');
       return false;
     }
   }
@@ -159,7 +159,7 @@ class SupabaseService {
       await client.from('novels').delete().eq('id', id);
       return true;
     } catch (e) {
-      debugPrint('❌ Supabase deleteNovel Error: $e');
+      debugPrint('Supabase deleteNovel Error: $e');
       return false;
     }
   }
