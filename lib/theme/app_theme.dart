@@ -13,7 +13,7 @@ class AppTheme {
         secondary: Color(0xFFEC4899),
         surface: Color(0xFF1E293B),
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme,),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF0F172A),
         elevation: 0,

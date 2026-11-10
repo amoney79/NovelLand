@@ -16,7 +16,7 @@ dependencies:
   lucide_icons: ^0.257.0
   supabase_flutter: ^2.0.0
   syncfusion_flutter_pdf: ^35.1.43
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^2.0.0
 
 dev_dependencies:
   flutter_test:

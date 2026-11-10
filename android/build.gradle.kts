@@ -19,6 +19,21 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+subprojects {
+    val configureAndroid = Action<Project> {
+        if (plugins.hasPlugin("com.android.application") || plugins.hasPlugin("com.android.library")) {
+            configure<com.android.build.gradle.BaseExtension> {
+                compileSdkVersion(36)
+            }
+        }
+    }
+    if (state.executed) {
+        configureAndroid.execute(this)
+    } else {
+        afterEvaluate(configureAndroid)
+    }
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
